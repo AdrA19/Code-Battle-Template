@@ -13,7 +13,7 @@ app.secret_key = "a-simple-secret-key"
 
 
 @app.route("/", methods=["GET", "POST"])
-@app.route("/signup", methods=["GET", "POST"])
+@app.route("/signup", methods=["GET", "POST"], endpoint="signup")
 def login():
     mode = "signup" if request.path == "/signup" else "login"
     error = None
