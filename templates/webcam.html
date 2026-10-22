@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><title>Webcam</title></head>
+<!-- cover, auto, contain -->
+<body style="font-family: monospace, sans-serif;
+             background-image: url('/static/cat.png');
+             background-color: black;
+             background-size: auto; 
+             background-attachment: fixed;
+             text-align: center;
+             color: white;
+             margin-top: 80px;">
+    <h1>📷 Webcam Classifier</h1>
+    
+    <p>
+        <a href="{{ url_for('welcome') }}">🏠 Back</a> | 
+        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+    </p>
+
+    <button onclick="startCam()" style="padding: 10px;">▶ Start Camera</button>
+    <button onclick="stopCam()" style="padding: 10px;">⏹ Stop Camera</button>
+
+    <div>
+        <img id="feed" width="640" height="480" style="display:none; margin-top: 20px;">
+    </div>
+
+    <script>
+        function startCam() {
+            const img = document.getElementById("feed");
+            img.src = "/video?t=" + Date.now(); // Prevent caching
+            img.style.display = "block";
+        }
+        function stopCam() {
+            const img = document.getElementById("feed");
+            img.src = "";
+            img.style.display = "none";
+        }
+    </script>
+</body>
+</html>

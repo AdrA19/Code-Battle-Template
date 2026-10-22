@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Login</title></head>
+<!-- cover, auto, contain -->
+<body style="font-family: monospace, sans-serif;
+             background-image: url('/static/cat.png');
+             background-color: black;
+             background-size: auto; 
+             background-attachment: fixed;
+             text-align: center;
+             color: white;
+             margin-top: 80px;">
+    <h1>🔐 Login</h1>
+    {% if error %}<p style="color: red;">{{ error }}</p>{% endif %}
+    
+    <form method="POST">
+        <p><input name="username" placeholder="Username" required></p>
+        <p><input name="password" type="password" placeholder="Password" required></p>
+        <button style="padding: 5px 15px;">Login</button>
+    </form>
+</body>
+</html>
