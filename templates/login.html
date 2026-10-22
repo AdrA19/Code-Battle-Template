@@ -10,13 +10,21 @@
              text-align: center;
              color: white;
              margin-top: 80px;">
-    <h1>🔐 Login</h1>
+    <h1>{% if mode == 'signup' %}📝 Sign Up{% else %}🔐 Login{% endif %}</h1>
     {% if error %}<p style="color: red;">{{ error }}</p>{% endif %}
     
-    <form method="POST">
+    <form method="POST" action="{% if mode == 'signup' %}{{ url_for('signup') }}{% else %}{{ url_for('login') }}{% endif %}">
         <p><input name="username" placeholder="Username" required></p>
         <p><input name="password" type="password" placeholder="Password" required></p>
-        <button style="padding: 5px 15px;">Login</button>
+        <button style="padding: 5px 15px;">{% if mode == 'signup' %}Sign Up{% else %}Login{% endif %}</button>
     </form>
+
+    <p>
+        {% if mode == 'signup' %}
+        <a href="{{ url_for('login') }}"><button style="padding: 5px 15px;">Back to Login</button></a>
+        {% else %}
+        <a href="{{ url_for('signup') }}"><button style="padding: 5px 15px;">Sign Up</button></a>
+        {% endif %}
+    </p>
 </body>
 </html>
