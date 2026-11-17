@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Admin Panel</title></head>
+<body style="font-family: monospace, sans-serif;
+             background-image: url('/static/cat.png');
+             background-color: black;
+             background-size: auto;
+             background-attachment: fixed;
+             text-align: center;
+             color: white;
+             margin-top: 80px;">
+    <h1>🛡️ Admin Panel</h1>
+    <p>Welcome, <strong>{{ user }}</strong>.</p>
+
+    <hr style="width: 300px;">
+
+    <h3>Signed-Up Users</h3>
+    {% for u in user_list %}
+        <p>{{ u }}</p>
+    {% endfor %}    
+    <hr style="width: 300px;">
+
+    <h3>System Settings</h3>
+    <p>Current Admin Username: <code>{{ admin_user }}</code></p>
+    <p><em>(To change the username or password, edit the top of <code>app.py</code>)</em></p>
+
+    <br><br>
+    <p>
+        <a href="{{ url_for('welcome') }}">⬅️ Back to Welcome</a> |
+        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+    </p>
+</body>
+</html>

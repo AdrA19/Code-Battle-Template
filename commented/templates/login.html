@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head><title>Login</title></head>
+
+<!-- Inline style shared across all pages.
+     url('/static/cat.png') works because Flask serves
+     files in static/ at the /static/ URL prefix. -->
+<body style="font-family: monospace, sans-serif;
+             background-image: url('/static/cat.png');
+             background-color: black;
+             background-size: auto;
+             background-attachment: fixed;
+             text-align: center;
+             color: white;
+             margin-top: 80px;">
+
+    <!-- Jinja ternary: A if COND else B.
+         mode is "login" or "signup" — set by the route. -->
+    <h1>{% if mode == 'signup' %}📝 Sign Up{% else %}🔐 Login{% endif %}</h1>
+
+    <!-- error is None on first load → falsy → this block is skipped.
+         Only shows the red paragraph after a failed submit. -->
+    {% if error %}<p style="color: red;">{{ error }}</p>{% endif %}
+
+    <!--
+      Form:
+        method="POST"  → fields sent in the request body (not the URL)
+        action=...     → which URL to POST to
+                         url_for('signup') → /signup
+                         url_for('login')  → /
+      The hidden mismatch trick: same form, one action, decided by mode.
+    -->
+    <form method="POST"
+          action="{% if mode == 'signup' %}{{ url_for('signup') }}{% else %}{{ url_for('login') }}{% endif %}">
+
+        <!-- name="username" → request.form["username"] in Python.
+             required → browser refuses to submit empty. -->
+        <p><input name="username" placeholder="Username" required></p>
+
+        <!-- type="password" masks typing. -->
+        <p><input name="password" type="password" placeholder="Password" required></p>
+
+        <button style="padding: 5px 15px;">
+            {% if mode == 'signup' %}Sign Up{% else %}Login{% endif %}
+        </button>
+    </form>
+
+    <!-- Link to the opposite mode.
+         url_for('login')  → "/"
+         url_for('signup') → "/signup"
+         (Note: we use plain <a>, not <a><button></a> — nesting
+          a button inside an anchor is invalid HTML.) -->
+    <p>
+        {% if mode == 'signup' %}
+            <a href="{{ url_for('login') }}">← Back to Login</a>
+        {% else %}
+            <a href="{{ url_for('signup') }}">Sign Up</a>
+        {% endif %}
+    </p>
+</body>
+</html>

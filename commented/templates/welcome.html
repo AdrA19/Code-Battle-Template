@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head><title>Welcome</title></head>
+<body style="font-family: monospace, sans-serif;
+             background-image: url('/static/cat.png');
+             background-color: black;
+             background-size: auto;
+             background-attachment: fixed;
+             text-align: center;
+             color: white;
+             margin-top: 80px;">
+
+    <!-- {{ user }} comes from the route (session["user"]).
+         Jinja HTML-escapes by default → a username like <script>
+         renders as text, not a running script. Safe. -->
+    <h1>🎉 Welcome, {{ user }}!</h1>
+
+    <!-- Scratch project embeds. Every <iframe> is a separate
+         browsing context; the Scratch project runs independently. -->
+    <iframe src="https://scratch.mit.edu/projects/1246229171/embed"
+            allowtransparency="true" width="485" height="402"
+            frameborder="0" scrolling="no" allowfullscreen></iframe>
+    <br>
+    <iframe src="https://scratch.mit.edu/projects/1246229171/embed"
+            allowtransparency="true" width="485" height="402"
+            frameborder="0" scrolling="no" allowfullscreen></iframe>
+    <br>
+    <iframe src="https://scratch.mit.edu/projects/1246229171/embed"
+            allowtransparency="true" width="485" height="402"
+            frameborder="0" scrolling="no" allowfullscreen></iframe>
+
+    <!--
+      is_admin comes from the route: session.get("is_admin", False).
+      False → block skipped → regular users see no admin link.
+      True  → link rendered.
+
+      Hiding the link is cosmetic, NOT security. The /admin route
+      itself checks the session, so a non-admin typing /admin in the
+      URL bar still gets 403.
+    -->
+    {% if is_admin %}
+        <p><a href="{{ url_for('admin_panel') }}">🛡️ Open Admin Panel</a></p>
+    {% endif %}
+
+    <!-- Visible to every logged-in user. -->
+    <p><a href="{{ url_for('webcam') }}">📷 Webcam Classifier</a></p>
+    <p><a href="{{ url_for('logout') }}">🚪 Logout</a></p>
+</body>
+</html>
