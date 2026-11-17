@@ -20,7 +20,7 @@
     <!-- Copied code directly from the Teachable Machine website no ai used !-->
 
           <div>Teachable Machine Image Model</div>
-    <button type="button" onclick="init()">Start</button>
+    <button style="color: white; background-color: black;" onclick="init()">Start</button>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -48,7 +48,7 @@
 
             // Convenience function to setup a webcam
             const flip = true; // whether to flip the webcam
-            webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+            webcam = new tmImage.Webcam(1000, 1000, flip); // width, height, flip
             await webcam.setup(); // request access to the webcam
             await webcam.play();
             window.requestAnimationFrame(loop);
