@@ -3,7 +3,6 @@ from flask import Flask, render_template, request, redirect, url_for, session
 ADMIN_USER = "admin"
 ADMIN_PASS = "admin123"
 
-# { username: [password, is_admin] }
 USERS = {ADMIN_USER: [ADMIN_PASS, True]}
 
 app = Flask(__name__)
