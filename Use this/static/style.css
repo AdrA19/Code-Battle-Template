@@ -1,0 +1,12 @@
+/*cover, auto, contain*/
+body {
+  font-family: monospace, sans-serif;
+  background-image: url('/static/images.jpg');
+  background-color: black;
+  background-size: cover;
+  background-attachment: fixed;
+  text-align: center;
+  color: white;
+  margin-top: 80px;
+}
+

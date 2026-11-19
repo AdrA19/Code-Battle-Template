@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head><title>Webcam</title></head>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <!-- cover, auto, contain -->
-<body style="font-family: monospace, sans-serif;
-             background-image: url('/static/cat.png');
-             background-color: black;
-             background-size: auto; 
-             background-attachment: fixed;
+<body>
+    <div class="body">
              text-align: center;
              color: white;
              margin-top: 80px;">
     <h1>📷 Webcam Classifier</h1>
     
     <p>
-        <a href="{{ url_for('welcome') }}">🏠 Back</a> | 
-        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+        <a style="color: white; background-color: black;" href="{{ url_for('welcome') }}">🏠 Back</a> | 
+        <a style="color: white; background-color: black;" href="{{ url_for('logout') }}">🚪 Logout</a>
     </p>
 
     <!-- Copied code directly from the Teachable Machine website no ai used !-->
@@ -80,5 +78,6 @@
     </script>
     
     <!-- Copied code directly from the Teachable Machine website no ai used !-->
+    </div>
 </body>
 </html>
