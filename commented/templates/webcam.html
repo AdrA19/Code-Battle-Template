@@ -1,60 +1,81 @@
 <!DOCTYPE html>
 <html>
-<head><title>Webcam</title></head>
-
-<body style="font-family: monospace, sans-serif;
-             background-image: url('/static/cat.png');
-             background-color: black;
-             background-size: auto;
-             background-attachment: fixed;
-             text-align: center;
-             color: white;
-             margin-top: 80px;">
-
+<head>
+    <title>Webcam</title>
+</head>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<body>
     <h1>📷 Webcam Classifier</h1>
 
     <p>
-        <!-- Navigation links to other views via url_for. -->
-        <a href="{{ url_for('welcome') }}">🏠 Back</a> |
-        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+        <!-- Link back to the welcome page. -->
+        <a class="blanc" href="{{ url_for('welcome') }}">🏠 Back</a> |
+        <!-- Link to log out. -->
+        <a class="blanc" href="{{ url_for('logout') }}">🚪 Logout</a>
     </p>
 
-    <!-- Placeholder text: real model output is injected by JavaScript. -->
+     <!-- Copied code directly from the Teachable Machine website no ai used !-->
+
     <div>Teachable Machine Image Model</div>
-
-    <!--
-        onclick="init()" calls the JS function `init` (defined in the
-        <script> block below) when the button is clicked.
-        Inline styles give it a black background with white text.
-    -->
-    <button style="color: white; background-color: black;" onclick="init()">Start</button>
-
-    <!--
-        Empty container divs. JavaScript will:
-          - append the <canvas> element to #webcam-container
-          - append prediction <div>s to #label-container
-        An `id` lets JS find them with document.getElementById(...).
-    -->
+    <button class="blanc" onclick="init()">Start</button>
     <div id="webcam-container"></div>
     <div style="font-size: 20px;" id="label-container"></div>
-
-    <!--
-        <script src="..."> loads external JS libraries:
-          - TensorFlow.js (tf.min.js)
-          - Teachable Machine Image library (teachablemachine-image.min.js)
-        These expose the global objects `tf` and `tmImage` used by the
-        inline script that follows.
-    -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-
-    <!--
-        <script type="text/javascript"> contains the inline model-loading
-        and webcam-prediction logic. (JavaScript intentionally NOT explained
-        per the request.)
-    -->
     <script type="text/javascript">
-        /* ... JavaScript omitted as requested ... */
+        // More API functions here:
+        // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+        // the link to your model provided by Teachable Machine export panel
+        const URL = "https://teachablemachine.withgoogle.com/models/8uG1ZlQpd/";
+
+        let model, webcam, labelContainer, maxPredictions;
+
+        // Load the image model and setup the webcam
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            // load the model and metadata
+            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+            // or files from your local hard drive
+            // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            // Convenience function to setup a webcam
+            const flip = true; // whether to flip the webcam
+            webcam = new tmImage.Webcam(500, 500, flip); // width, height, flip
+            await webcam.setup(); // request access to the webcam
+            await webcam.play();
+            window.requestAnimationFrame(loop);
+
+            // append elements to the DOM
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) { // and class labels
+                labelContainer.appendChild(document.createElement("div"));
+            }
+        }
+
+        async function loop() {
+            webcam.update(); // update the webcam frame
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        // run the webcam image through the image model
+        async function predict() {
+            // predict can take in an image, video or canvas html element
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                const classPrediction =
+                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                labelContainer.childNodes[i].innerHTML = classPrediction;
+                }
+        }
     </script>
+    
+    <!-- Copied code directly from the Teachable Machine website no ai used !-->
 </body>
 </html>

@@ -1,57 +1,48 @@
 <!DOCTYPE html>
 <html>
-<head><title>Welcome</title></head>
-
-<body style="font-family: monospace, sans-serif;
-             background-image: url('/static/cat.png');
-             background-color: black;
-             background-size: auto;
-             background-attachment: fixed;
-             text-align: center;
-             color: white;
-             margin-top: 80px;">
-
-    <!-- Greets the logged-in user; `user` comes from render_template(...). -->
+<head>
+    <title>Welcome</title>
+</head>
+<!-- Load the shared stylesheet. -->
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<body>
+    <!-- Show a personalised greeting. `user` was passed from the welcome()
+         view function. The emoji is just decorative text. -->
     <h1>🎉 Welcome, {{ user }}!</h1>
 
-    <!--
-        <iframe> embeds another web page inside this one.
-        Attributes:
-          src            : URL of the embedded page (Scratch project)
-          allowtransparency : lets the iframe background blend (older/non-standard)
-          width / height : pixel dimensions
-          frameborder    : 0 removes the iframe border (legacy HTML attr)
-          scrolling      : "no" disables scrollbars inside the iframe
-          allowfullscreen: permits the embedded content to go fullscreen
-    -->
-    <iframe src="https://scratch.mit.edu/projects/1246229171/embed" allowtransparency="true" width="485" height="402"
-          frameborder="0" scrolling="no" allowfullscreen></iframe>
+    <!-- <br> is a line break. -->
     <br>
 
-    <!--
-        url_for('static', filename='scratch.html') builds the URL for a file
-        placed in the `static/` folder — Flask serves static assets from there
-        at /static/<filename>.
-    -->
-    <iframe src="{{ url_for('static', filename='scratch.html') }}" allowtransparency="true" width="485" height="402"
-          frameborder="0" scrolling="no" allowfullscreen></iframe>
+    <!-- <iframe> embeds another page inside this one.
+         src="..." is the embedded page URL — here it's a file called
+         scratch.html inside the /static folder (a Scratch project player).
+         allowtransparency="true" lets the page's background show through.
+         width / height set the size in pixels.
+         frameborder="0" hides the border around the iframe.
+         scrolling="no" prevents scrollbars inside the iframe.
+         allowfullscreen lets the embedded content go fullscreen. -->
+    <iframe src="{{ url_for('static', filename='scratch.html') }}" allowtransparency="true"
+    width="485" height="402" frameborder="0" scrolling="no" allowfullscreen></iframe>
+
     <br>
 
-    <!-- Same Scratch embed repeated. -->
-    <iframe src="https://scratch.mit.edu/projects/1246229171/embed" allowtransparency="true" width="485" height="402"
-          frameborder="0" scrolling="no" allowfullscreen></iframe>
+    <!-- A second identical iframe — presumably to show two projects,
+         or the same one twice in the original code. -->
+    <iframe src="{{ url_for('static', filename='scratch.html') }}" allowtransparency="true"
+    width="485" height="402" frameborder="0" scrolling="no" allowfullscreen></iframe>
 
-    <!--
-        Conditional rendering: the admin link only appears for admins.
-        `is_admin` was passed from the welcome view.
-        Jinja2 if block: {% if is_admin %} ... {% endif %}
-    -->
+    <!-- {% if is_admin %} ... {% endif %} is a Jinja2 IF. `is_admin` was passed
+         from the view function. If True, render everything up to {% endif %}.
+         So non-admins never see the admin panel link at all. -->
     {% if is_admin %}
-        <p><a href="{{ url_for('admin_panel') }}">🛡️ Open Admin Panel</a></p>
+        <!-- <a> link to the admin panel route. -->
+        <p><a class="blanc" href="{{ url_for('admin_panel') }}">🛡️ Open Admin Panel</a></p>
     {% endif %}
 
-    <!-- Links available to every logged-in user. -->
-    <p><a href="{{ url_for('webcam') }}">📷 Webcam Classifier</a></p>
-    <p><a href="{{ url_for('logout') }}">🚪 Logout</a></p>
+    <!-- Always show the webcam link (all logged-in users can use it). -->
+    <p><a class="blanc" href="{{ url_for('webcam') }}">📷 Webcam Classifier</a></p>
+
+    <!-- Always show the logout link. -->
+    <p><a class="blanc" href="{{ url_for('logout') }}">🚪 Logout</a></p>
 </body>
 </html>

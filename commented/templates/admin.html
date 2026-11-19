@@ -1,78 +1,67 @@
+<!-- <!DOCTYPE html> tells the browser this is an HTML5 document. -->
 <!DOCTYPE html>
-<!-- Declares this as an HTML5 document. -->
+<!-- <html> is the root element; everything else lives inside it. -->
 <html>
+<!-- <head> contains metadata about the page (not shown to the user). -->
 <head>
     <!-- <title> sets the text shown in the browser tab. -->
     <title>Admin Panel</title>
 </head>
-
-<!--
-    The <body> tag carries an inline `style` attribute.
-    Inline CSS applies only to this element.
-    Properties used:
-      font-family         : monospace with sans-serif fallback
-      background-image    : loads /static/cat.png
-      background-color    : black (behind the image)
-      background-size     : "auto" (original image size; could be cover/contain)
-      background-attachment: fixed (image stays put while scrolling)
-      text-align          : center
-      color               : white (text color)
-      margin-top          : 80px (pushes content down)
--->
-<body style="font-family: monospace, sans-serif;
-             background-image: url('/static/cat.png');
-             background-color: black;
-             background-size: auto;
-             background-attachment: fixed;
-             text-align: center;
-             color: white;
-             margin-top: 80px;">
-
-    <!-- <h1> is a top-level heading. The shield emoji is literal text. -->
+<!-- The original code has a malformed tag (missing closing > on the link and
+     a stray comment on the same line). I've fixed it here; the intent is:
+     load the shared stylesheet from /static/style.css.
+     url_for('static', filename='style.css') generates that URL. -->
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<!-- <body> contains everything the user actually sees. -->
+<body>
+    <!-- <h1> is a top-level heading (biggest size). -->
     <h1>🛡️ Admin Panel</h1>
 
-    <!--
-        {{ user }} is Jinja2 template syntax for variable interpolation.
-        The `user` variable was passed from `render_template(...)` in app.py.
-        <strong> makes the text bold.
-    -->
+    <!-- <p> is a paragraph. -->
+    <!-- <strong> makes text bold. -->
+    <!-- {{ user }} is Jinja2 syntax: it outputs the value of the variable
+         `user` that Flask passed into render_template. -->
     <p>Welcome, <strong>{{ user }}</strong>.</p>
 
-    <!-- <hr> draws a horizontal rule; width set via inline CSS. -->
+    <!-- <hr> draws a horizontal rule (a divider line).
+         style="width: 300px;" is inline CSS limiting how wide the line is. -->
     <hr style="width: 300px;">
 
+    <!-- <h3> is a smaller heading. -->
     <h3>Signed-Up Users</h3>
 
-    <!--
-        Jinja2 control flow:
-          {% for u in user_list %} ... {% endfor %}
-        Loops over each item in `user_list`, binding it to `u`.
-        `user_list` was built in app.py as a list of strings like "alice 👤".
-    -->
+    <!-- {% for u in user_list %} ... {% endfor %} is a Jinja2 LOOP.
+         It repeats the enclosed HTML once for every item in user_list
+         (the list Flask built in admin_panel()). `u` is the loop variable. -->
     {% for u in user_list %}
+        <!-- Outputs one username (with emoji) per paragraph. -->
         <p>{{ u }}</p>
+    <!-- Ends the loop. Everything between {% for %} and {% endfor %}
+         is repeated. -->
     {% endfor %}
 
+    <!-- Another divider. -->
     <hr style="width: 300px;">
 
     <h3>System Settings</h3>
 
-    <!-- <code> renders text in a monospace font. -->
+    <!-- <code> renders text in a monospace font (looks like code). -->
+    <!-- Here it shows the admin username passed from Flask. -->
     <p>Current Admin Username: <code>{{ admin_user }}</code></p>
 
-    <!-- <em> italicizes text. -->
+    <!-- <em> makes text italic. The inner <code> shows "app.py" as code. -->
     <p><em>(To change the username or password, edit the top of <code>app.py</code>)</em></p>
 
+    <!-- <br> is a line break (empty element, no closing tag needed). -->
     <br><br>
 
     <p>
-        <!--
-            url_for('welcome') produces the URL of the `welcome` view.
-            Using url_for (not hard-coded paths) keeps links in sync
-            if routes change later.
-        -->
-        <a href="{{ url_for('welcome') }}">⬅️ Back to Welcome</a> |
-        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+        <!-- <a> is a hyperlink. href="..." is the URL to go to.
+             class="blanc" applies a CSS class defined in style.css.
+             url_for('welcome') generates the URL for the welcome route. -->
+        <a class="blanc" href="{{ url_for('welcome') }}">⬅️ Back to Welcome</a> |
+        <!-- url_for('logout') generates the logout URL. -->
+        <a class="blanc" href="{{ url_for('logout') }}">🚪 Logout</a>
     </p>
 </body>
 </html>

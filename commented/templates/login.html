@@ -1,63 +1,55 @@
 <!DOCTYPE html>
 <html>
-<head><title>Login</title></head>
-
-<body style="font-family: monospace, sans-serif;
-             background-image: url('/static/cat.png');
-             background-color: black;
-             background-size: auto;
-             background-attachment: fixed;
-             text-align: center;
-             color: white;
-             margin-top: 80px;">
-
-    <!--
-        Jinja2 if/else on one line:
-          {% if mode == 'signup' %} ... {% else %} ... {% endif %}
-        The heading text changes based on the `mode` variable.
-    -->
+<head>
+    <title>Login</title>
+</head>
+<!-- Load the shared stylesheet. This tag is correctly closed here. -->
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<body>
+    <!-- {% if mode == 'signup' %} ... {% else %} ... {% endif %} is a Jinja2
+         IF/ELSE block. `mode` is the variable Flask passed in.
+         If mode is "signup", show "📝 Sign Up"; otherwise show "🔐 Login". -->
     <h1>{% if mode == 'signup' %}📝 Sign Up{% else %}🔐 Login{% endif %}</h1>
 
-    <!--
-        Only render the error <p> if `error` is truthy (not None/empty).
-        Style "color: red" makes error messages stand out.
-    -->
+    <!-- {% if error %} is a Jinja2 IF. It is truthy only when `error` is a
+         non-empty string. If it's None (no error), nothing is shown.
+         When there IS an error, render a red paragraph containing it. -->
     {% if error %}<p style="color: red;">{{ error }}</p>{% endif %}
 
-    <!--
-        <form method="POST" ...> submits a POST request.
-        The `action` attribute is set dynamically:
-          - in signup mode -> url_for('signup')
-          - in login mode  -> url_for('login')
-        This means the same form file works for both pages.
-    -->
+    <!-- <form> collects input fields. method="POST" sends the data in the HTTP
+         body (good for sensitive data like passwords). action="..." is the URL
+         the form submits to. The Jinja if/else inside the attribute chooses
+         the signup URL or the login URL depending on `mode`. -->
     <form method="POST" action="{% if mode == 'signup' %}{{ url_for('signup') }}{% else %}{{ url_for('login') }}{% endif %}">
 
-        <!--
-            <input name="username"> creates a text field.
-            The `name` attribute is the key Flask reads via request.form["username"].
-            `placeholder` shows grey hint text.
-            `required` makes the browser enforce non-empty input (HTML5 validation).
-        -->
+        <!-- <input> is a text box.
+             name="username"  -> this is the key used by request.form["username"].
+             placeholder=...  -> grey hint text shown when the box is empty.
+             required         -> the browser refuses to submit if it's empty. -->
         <p><input name="username" placeholder="Username" required></p>
 
-        <!-- type="password" masks characters; name="password" is the form key. -->
+        <!-- Same, but type="password" hides the typed characters as dots. -->
         <p><input name="password" type="password" placeholder="Password" required></p>
 
-        <!-- Submit button. Its label also switches with `mode`. -->
-        <button style="padding: 5px 15px;">{% if mode == 'signup' %}Sign Up{% else %}Login{% endif %}</button>
+        <!-- <button> submits the form when clicked.
+             style="..." is inline CSS: padding for size, white text on a black
+             background.
+             Inside the button, the Jinja if/else shows "Sign Up" or "Login"
+             to match the current mode. -->
+        <button style="padding: 5px 15px; color: white; background-color: black;">{% if mode == 'signup' %}Sign Up{% else %}Login{% endif %}</button>
     </form>
 
     <p>
-        <!--
-            Toggle link: from signup -> back to login, and vice versa.
-            A <button> nested in an <a> isn't strictly valid HTML but works
-            in most browsers; cleaner is to style the <a> itself.
-        -->
+        <!-- This block shows the "switch mode" link.
+             If we're on the signup page, offer a link back to login;
+             otherwise offer a link to signup. -->
         {% if mode == 'signup' %}
-        <a href="{{ url_for('login') }}"><button style="padding: 5px 15px;">Back to Login</button></a>
+        <!-- <a> wrapped around a <button> creates a clickable button.
+             url_for('login') -> "/" (the homepage handles login). -->
+        <a href="{{ url_for('login') }}" ><button style="color: white; background-color: black;">Back to Login</button></a>
         {% else %}
-        <a href="{{ url_for('signup') }}"><button style="padding: 5px 15px;">Sign Up</button></a>
+        <!-- url_for('signup') -> "/signup". -->
+        <a href="{{ url_for('signup') }}"><button style="color: white; background-color: black;">Sign Up</button></a>
         {% endif %}
     </p>
 </body>
