@@ -1,6 +1,24 @@
 <!DOCTYPE html>
+<!-- Declares this as an HTML5 document. -->
 <html>
-<head><title>Admin Panel</title></head>
+<head>
+    <!-- <title> sets the text shown in the browser tab. -->
+    <title>Admin Panel</title>
+</head>
+
+<!--
+    The <body> tag carries an inline `style` attribute.
+    Inline CSS applies only to this element.
+    Properties used:
+      font-family         : monospace with sans-serif fallback
+      background-image    : loads /static/cat.png
+      background-color    : black (behind the image)
+      background-size     : "auto" (original image size; could be cover/contain)
+      background-attachment: fixed (image stays put while scrolling)
+      text-align          : center
+      color               : white (text color)
+      margin-top          : 80px (pushes content down)
+-->
 <body style="font-family: monospace, sans-serif;
              background-image: url('/static/cat.png');
              background-color: black;
@@ -10,20 +28,26 @@
              color: white;
              margin-top: 80px;">
 
+    <!-- <h1> is a top-level heading. The shield emoji is literal text. -->
     <h1>🛡️ Admin Panel</h1>
 
-    <!-- {{ user }} from the route (session["user"]). -->
+    <!--
+        {{ user }} is Jinja2 template syntax for variable interpolation.
+        The `user` variable was passed from `render_template(...)` in app.py.
+        <strong> makes the text bold.
+    -->
     <p>Welcome, <strong>{{ user }}</strong>.</p>
 
+    <!-- <hr> draws a horizontal rule; width set via inline CSS. -->
     <hr style="width: 300px;">
 
     <h3>Signed-Up Users</h3>
 
     <!--
-      user_list is a list of strings built in admin_panel():
-          ["admin 🛡️", "bob 👤"]
-      {% for %} loops over it, binding u to one element per pass.
-      {{ u }} HTML-escapes, so a malicious username can't break out.
+        Jinja2 control flow:
+          {% for u in user_list %} ... {% endfor %}
+        Loops over each item in `user_list`, binding it to `u`.
+        `user_list` was built in app.py as a list of strings like "alice 👤".
     -->
     {% for u in user_list %}
         <p>{{ u }}</p>
@@ -33,12 +57,20 @@
 
     <h3>System Settings</h3>
 
-    <!-- admin_user = ADMIN_USER constant from app.py. -->
+    <!-- <code> renders text in a monospace font. -->
     <p>Current Admin Username: <code>{{ admin_user }}</code></p>
+
+    <!-- <em> italicizes text. -->
     <p><em>(To change the username or password, edit the top of <code>app.py</code>)</em></p>
 
     <br><br>
+
     <p>
+        <!--
+            url_for('welcome') produces the URL of the `welcome` view.
+            Using url_for (not hard-coded paths) keeps links in sync
+            if routes change later.
+        -->
         <a href="{{ url_for('welcome') }}">⬅️ Back to Welcome</a> |
         <a href="{{ url_for('logout') }}">🚪 Logout</a>
     </p>

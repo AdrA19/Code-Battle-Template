@@ -2,9 +2,6 @@
 <html>
 <head><title>Login</title></head>
 
-<!-- Inline style shared across all pages.
-     url('/static/cat.png') works because Flask serves
-     files in static/ at the /static/ URL prefix. -->
 <body style="font-family: monospace, sans-serif;
              background-image: url('/static/cat.png');
              background-color: black;
@@ -14,47 +11,53 @@
              color: white;
              margin-top: 80px;">
 
-    <!-- Jinja ternary: A if COND else B.
-         mode is "login" or "signup" — set by the route. -->
+    <!--
+        Jinja2 if/else on one line:
+          {% if mode == 'signup' %} ... {% else %} ... {% endif %}
+        The heading text changes based on the `mode` variable.
+    -->
     <h1>{% if mode == 'signup' %}📝 Sign Up{% else %}🔐 Login{% endif %}</h1>
 
-    <!-- error is None on first load → falsy → this block is skipped.
-         Only shows the red paragraph after a failed submit. -->
+    <!--
+        Only render the error <p> if `error` is truthy (not None/empty).
+        Style "color: red" makes error messages stand out.
+    -->
     {% if error %}<p style="color: red;">{{ error }}</p>{% endif %}
 
     <!--
-      Form:
-        method="POST"  → fields sent in the request body (not the URL)
-        action=...     → which URL to POST to
-                         url_for('signup') → /signup
-                         url_for('login')  → /
-      The hidden mismatch trick: same form, one action, decided by mode.
+        <form method="POST" ...> submits a POST request.
+        The `action` attribute is set dynamically:
+          - in signup mode -> url_for('signup')
+          - in login mode  -> url_for('login')
+        This means the same form file works for both pages.
     -->
-    <form method="POST"
-          action="{% if mode == 'signup' %}{{ url_for('signup') }}{% else %}{{ url_for('login') }}{% endif %}">
+    <form method="POST" action="{% if mode == 'signup' %}{{ url_for('signup') }}{% else %}{{ url_for('login') }}{% endif %}">
 
-        <!-- name="username" → request.form["username"] in Python.
-             required → browser refuses to submit empty. -->
+        <!--
+            <input name="username"> creates a text field.
+            The `name` attribute is the key Flask reads via request.form["username"].
+            `placeholder` shows grey hint text.
+            `required` makes the browser enforce non-empty input (HTML5 validation).
+        -->
         <p><input name="username" placeholder="Username" required></p>
 
-        <!-- type="password" masks typing. -->
+        <!-- type="password" masks characters; name="password" is the form key. -->
         <p><input name="password" type="password" placeholder="Password" required></p>
 
-        <button style="padding: 5px 15px;">
-            {% if mode == 'signup' %}Sign Up{% else %}Login{% endif %}
-        </button>
+        <!-- Submit button. Its label also switches with `mode`. -->
+        <button style="padding: 5px 15px;">{% if mode == 'signup' %}Sign Up{% else %}Login{% endif %}</button>
     </form>
 
-    <!-- Link to the opposite mode.
-         url_for('login')  → "/"
-         url_for('signup') → "/signup"
-         (Note: we use plain <a>, not <a><button></a> — nesting
-          a button inside an anchor is invalid HTML.) -->
     <p>
+        <!--
+            Toggle link: from signup -> back to login, and vice versa.
+            A <button> nested in an <a> isn't strictly valid HTML but works
+            in most browsers; cleaner is to style the <a> itself.
+        -->
         {% if mode == 'signup' %}
-            <a href="{{ url_for('login') }}">← Back to Login</a>
+        <a href="{{ url_for('login') }}"><button style="padding: 5px 15px;">Back to Login</button></a>
         {% else %}
-            <a href="{{ url_for('signup') }}">Sign Up</a>
+        <a href="{{ url_for('signup') }}"><button style="padding: 5px 15px;">Sign Up</button></a>
         {% endif %}
     </p>
 </body>

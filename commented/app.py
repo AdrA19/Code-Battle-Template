@@ -1,218 +1,176 @@
-# ═══════════════════════════════════════════════════════════════════
-# 1. IMPORTS
-# ═══════════════════════════════════════════════════════════════════
-# "from flask import X" pulls each name out of the flask package.
-# Without this, you'd write flask.Flask, flask.request, etc.
+# ============================================================
+# IMPORTS
+# ============================================================
+# `flask` is a lightweight web framework for Python.
+# We import specific names from it:
+#   - Flask        : the main application class
+#   - render_template : renders an HTML template file from the `templates/` folder
+#   - request      : holds incoming request data (form fields, path, etc.)
+#   - redirect     : returns a redirect response to another URL
+#   - url_for      : builds a URL for a given view function name
+#   - session      : a per-user dictionary stored in a signed cookie
 from flask import Flask, render_template, request, redirect, url_for, session
 
-#   Flask           – the class we instantiate to build the app
-#   render_template – loads templates/<name>.html, runs Jinja, returns HTML
-#   request         – per-request object: .method, .form, .path, .args
-#   redirect        – returns a 302 response pointing at a new URL
-#   url_for         – reverse routing: function name → URL
-#   session         – dict-like, persisted across requests via signed cookie
-
-
-# ═══════════════════════════════════════════════════════════════════
-# 2. CONFIGURATION CONSTANTS
-# ═══════════════════════════════════════════════════════════════════
-# UPPER_CASE = Python convention for "constant, don't change at runtime".
-
+# ============================================================
+# CONSTANTS / INITIAL DATA
+# ============================================================
+# The built-in administrator username (a plain string).
 ADMIN_USER = "admin"
-# Used to seed USERS below and shown on the admin panel.
 
+# The built-in administrator password (a plain string — insecure in real apps).
 ADMIN_PASS = "admin123"
-# ⚠️ Plaintext — demo only. Real apps store bcrypt hashes.
 
+# USERS is a dictionary mapping:
+#     username (str) -> [password (str), is_admin (bool)]
+# The admin account is pre-seeded here.
+# `USERS[ADMIN_USER]` evaluates to the list `[ADMIN_PASS, True]`.
 USERS = {ADMIN_USER: [ADMIN_PASS, True]}
-# A dict: { username: [password, is_admin] }.
-#   USERS["admin"]     → ["admin123", True]
-#   USERS["admin"][0]  → "admin123"   (password)
-#   USERS["admin"][1]  → True         (admin flag)
-# We use a list (not a dict) for the value so [0]/[1] indexing works.
-# ⚠️ In-memory only — restart wipes all signups back to just admin.
 
-
-# ═══════════════════════════════════════════════════════════════════
-# 3. APP OBJECT + SECRET KEY
-# ═══════════════════════════════════════════════════════════════════
+# ============================================================
+# APP SETUP
+# ============================================================
+# Create the Flask application object. `__name__` tells Flask where
+# to look for templates/static files (relative to this module).
 app = Flask(__name__)
-# __name__ tells Flask where to find templates/ and static/.
 
+# `secret_key` is required for sessions (Flask signs the cookie with it).
+# In production this should be a long random value, NOT a hard-coded string.
 app.secret_key = "a-simple-secret-key"
-# Flask's session works by writing a SIGNED cookie to the browser.
-# The signature is computed with this key. If someone tampers with
-# the cookie (e.g. flips is_admin to True), the signature breaks and
-# Flask discards the cookie.
-# ⚠️ "a-simple-secret-key" is guessable — anyone who knows it can
-# forge an admin session. Generate real ones with:
-#     python -c "import secrets; print(secrets.token_hex())"
 
-
-# ═══════════════════════════════════════════════════════════════════
-# 4. LOGIN + SIGNUP (one function, two URLs)
-# ═══════════════════════════════════════════════════════════════════
+# ============================================================
+# LOGIN / SIGNUP VIEW
+# ============================================================
+# Two decorators are stacked on the same function:
+#   @app.route("/", ...)          -> root URL  (login page)
+#   @app.route("/signup", ...)    -> /signup URL (signup page)
+# `endpoint="signup"` gives the second route a distinct name so
+# `url_for("signup")` works. Otherwise both would be named "login".
+#
+# `methods=["GET", "POST"]` means this view accepts both:
+#   GET  -> show the form
+#   POST -> process submitted form data
 @app.route("/", methods=["GET", "POST"])
 @app.route("/signup", methods=["GET", "POST"], endpoint="signup")
 def login():
-    # Two decorators stacked → one function serves both URLs.
-    # GET  = user opened the page, show form
-    # POST = user submitted the form, process it
-    # (Without "POST" in methods, submitting would give 405.)
-    #
-    # endpoint="signup" lets url_for('signup') work even though the
-    # Python function is named `login`. Without it, Flask would name
-    # the endpoint after the function ("login") and clash with "/" .
-
+    # `request.path` is the URL path that was requested ("/" or "/signup").
+    # We use it to decide whether we're in "login" or "signup" mode.
+    # This is a ternary expression: value_if_true if condition else value_if_false
     mode = "signup" if request.path == "/signup" else "login"
-    # request.path is the URL path. Ternary picks the mode string.
-    # This one variable is what makes the two routes differ.
 
+    # `error` starts as None; it will be set to a string if something fails.
     error = None
-    # Set to a string on failure. None → falsy → template shows no error.
 
+    # Only process form data when the request method is POST.
     if request.method == "POST":
-        # Only runs on form submit. GET skips to the render at the bottom.
-
+        # `request.form` is a dict-like object of submitted form fields.
+        # `["username"]` raises KeyError if missing; `.strip()` removes
+        # leading/trailing whitespace from the username.
         u = request.form["username"].strip()
-        # request.form is the submitted form dict.
-        # Key "username" matches name="username" in the HTML.
-        # .strip() trims whitespace so " bob " → "bob".
-
+        # Passwords are NOT stripped — whitespace may be intentional.
         p = request.form["password"]
-        # No .strip() on passwords — spaces may be intentional.
 
+        # ---- LOGIN MODE ----
         if mode == "login":
-            # ─── LOGIN ───
+            # Check: username exists in USERS AND the stored password matches.
+            # USERS[u][0] is the password (index 0 of the list).
             if u in USERS and USERS[u][0] == p:
-                # Two checks:
-                #   "u in USERS"     → does the username exist?
-                #   USERS[u][0] == p → does the password match?
-                # Short-circuit: if the first is False, the second is
-                # never evaluated, so no KeyError on missing user.
-
+                # `session.update(...)` sets multiple session keys at once.
+                # `is_admin` is True only for the admin account.
                 session.update(user=u, is_admin=USERS[u][1])
-                # Shorthand for:
-                #   session["user"]     = u
-                #   session["is_admin"] = USERS[u][1]   (the flag)
+                # Redirect the browser to the "welcome" view's URL.
                 return redirect(url_for("welcome"))
-                # 302 to /welcome. Returning ends the function.
-
+            # If credentials are wrong, set an error message.
             error = "Wrong username or password"
-            # Same message whether username or password is wrong —
-            # prevents username enumeration.
 
+        # ---- SIGNUP MODE ----
         else:
-            # ─── SIGNUP ───
+            # Reject empty username or password.
             if not u or not p:
-                # `not ""` is True → catches blank submissions that
-                # somehow skip the HTML `required` attribute (curl, etc).
                 error = "Username and password required"
+            # Reject duplicate usernames.
             elif u in USERS:
-                # elif = else-if, only checked when the first `if` failed.
                 error = "Username already taken"
             else:
+                # Register the new user as a non-admin ([password, False]).
                 USERS[u] = [p, False]
-                # New entry. Signups are never admin.
-                # Mutates the module-level USERS dict in place.
-
+                # Automatically log them in.
                 session.update(user=u, is_admin=False)
-                # Log the new user in immediately.
                 return redirect(url_for("welcome"))
 
-    # Reached on GET, or POST with validation error.
+    # If we reach here (GET, or POST with an error), render the template.
+    # `render_template` looks for `login.html` inside `templates/`.
+    # Keyword args become variables accessible inside the template.
     return render_template("login.html", error=error, mode=mode)
-    # Jinja gets two variables: error (None or str) and mode ("login"/"signup").
 
-
-# ═══════════════════════════════════════════════════════════════════
-# 5. WELCOME
-# ═══════════════════════════════════════════════════════════════════
+# ============================================================
+# WELCOME VIEW (protected)
+# ============================================================
 @app.route("/welcome")
 def welcome():
-    # No methods= → GET only.
-
+    # "Authentication guard": if the session has no "user" key,
+    # the visitor is not logged in -> send them to the login page.
     if "user" not in session:
-        # Not logged in → back to the form.
         return redirect(url_for("login"))
-
-    return render_template("welcome.html",
-                           user=session["user"],
+    # Otherwise render the welcome page. `session["user"]` is the username.
+    # `session.get("is_admin", False)` returns False if the key is missing.
+    return render_template("welcome.html", user=session["user"],
                            is_admin=session.get("is_admin", False))
-    # session["user"] — safe because we just checked it exists.
-    # session.get("is_admin", False) — safe even if key missing;
-    # returns False by default. Handles stale cookies.
-    # Both names become Jinja variables.
 
-
-# ═══════════════════════════════════════════════════════════════════
-# 6. ADMIN PANEL
-# ═══════════════════════════════════════════════════════════════════
+# ============================================================
+# ADMIN PANEL VIEW (admin-only)
+# ============================================================
 @app.route("/admin")
 def admin_panel():
+    # Guard: only users with is_admin True may proceed.
+    # `not session.get("is_admin")` is True when the value is missing/False.
+    # We return a tuple `(body, status_code)` -> HTTP 403 Forbidden.
     if not session.get("is_admin"):
-        # get() returns None if key missing → `not None` → True → block.
-        # Returns False if is_admin was explicitly False → also blocked.
-        # Only True passes.
         return "Access Denied. You are not an admin.", 403
-        # (body, status) tuple → Flask uses 403 as the status code.
 
+    # Build a human-readable list of users with an emoji icon.
     user_list = []
-    # Plain Python list of display strings.
-
+    # `.items()` yields (key, value) pairs from the dict.
     for name, data in USERS.items():
-        # .items() → (username, [password, is_admin]) pairs.
-        # name = "admin" / signup username
-        # data = ["password", admin_flag]
+        # `data[1]` is the is_admin boolean.
+        # Ternary chooses the shield emoji for admins, person for regular users.
         icon = "🛡️" if data[1] else "👤"
-        # data[1] is the admin flag. Ternary picks an icon.
+        # f-strings interpolate variables into the string.
         user_list.append(f"{name} {icon}")
-        # f-string: {name} interpolates the variable.
-        # Result e.g. "admin 🛡️" or "bob 👤".
 
-    return render_template("admin.html",
-                           user=session["user"],
-                           admin_user=ADMIN_USER,
-                           user_list=user_list)
-    # Three template variables:
-    #   user       – current admin's username
-    #   admin_user – the ADMIN_USER constant for the settings display
-    #   user_list  – the formatted list we just built
+    # Render the admin template with the prepared data.
+    # `admin_user` passes the constant so the template can display it.
+    return render_template("admin.html", user=session["user"],
+        admin_user=ADMIN_USER, user_list=user_list)
 
-
-# ═══════════════════════════════════════════════════════════════════
-# 7. WEBCAM PAGE
-# ═══════════════════════════════════════════════════════════════════
+# ============================================================
+# WEBCAM VIEW (protected)
+# ============================================================
 @app.route("/webcam")
 def webcam():
+    # Same login guard as /welcome.
     if "user" not in session:
         return redirect(url_for("login"))
-    # Same login check as /welcome.
+    # Just render the page; the JS inside handles the camera.
     return render_template("webcam.html")
-    # No variables needed — everything happens in the browser JS.
 
-
-# ═══════════════════════════════════════════════════════════════════
-# 8. LOGOUT
-# ═══════════════════════════════════════════════════════════════════
+# ============================================================
+# LOGOUT VIEW
+# ============================================================
 @app.route("/logout")
 def logout():
-    session.clear()
-    # Empties the session dict. Flask writes a fresh empty cookie,
+    # `session.clear()` removes ALL keys from the session,
     # effectively logging the user out.
+    session.clear()
     return redirect(url_for("login"))
 
-
-# ═══════════════════════════════════════════════════════════════════
-# 9. DEV SERVER
-# ═══════════════════════════════════════════════════════════════════
+# ============================================================
+# ENTRY POINT
+# ============================================================
+# This block runs only when the script is executed directly
+# (`python app.py`), not when imported as a module.
 if __name__ == "__main__":
-    # Only runs when you execute `python app.py` directly.
-    # If app.py is imported (e.g. by gunicorn), __name__ is "app",
-    # so this block is skipped.
+    # host="localhost" -> only reachable from this machine.
+    # port=8000        -> listen on TCP port 8000.
+    # debug=True       -> auto-reload on changes + detailed error pages.
+    #                     NEVER enable debug in production.
     app.run(host="localhost", port=8000, debug=True)
-    # host="localhost" → only reachable from this machine
-    # port=8000       → http://localhost:8000
-    # debug=True      → auto-reload on save + traceback debugger
-    # ⚠️ Never use debug=True in production — the debugger lets
-    # anyone on the network run arbitrary Python.
