@@ -11,13 +11,8 @@
              color: white;
              margin-top: 80px;">
     <h1>🎉 Welcome, {{ user }}!</h1>
-    <iframe src="https://scratch.mit.edu/projects/1246229171/embed" allowtransparency="true" width="485" height="402"
-          frameborder="0" scrolling="no" allowfullscreen></iframe>
     <br>
     <iframe src="{{ url_for('static', filename='scratch.html') }}" allowtransparency="true" width="485" height="402"
-          frameborder="0" scrolling="no" allowfullscreen></iframe>
-    <br>
-    <iframe src="https://scratch.mit.edu/projects/1246229171/embed" allowtransparency="true" width="485" height="402"
           frameborder="0" scrolling="no" allowfullscreen></iframe>
 
     {% if is_admin %}
