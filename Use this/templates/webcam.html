@@ -3,21 +3,17 @@
 <head><title>Webcam</title></head>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <body>
-    <div class="body">
-             text-align: center;
-             color: white;
-             margin-top: 80px;">
     <h1>📷 Webcam Classifier</h1>
     
     <p>
-        <a style="color: white; background-color: black;" href="{{ url_for('welcome') }}">🏠 Back</a> | 
-        <a style="color: white; background-color: black;" href="{{ url_for('logout') }}">🚪 Logout</a>
+        <a class="blanc" href="{{ url_for('welcome') }}">🏠 Back</a> | 
+        <a class="blanc" href="{{ url_for('logout') }}">🚪 Logout</a>
     </p>
 
     <!-- Copied code directly from the Teachable Machine website no ai used !-->
 
     <div>Teachable Machine Image Model</div>
-    <button style="color: white; background-color: black;" onclick="init()">Start</button>
+    <button class="blanc" onclick="init()">Start</button>
     <div id="webcam-container"></div>
     <div style="font-size: 20px;" id="label-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -77,6 +73,5 @@
     </script>
     
     <!-- Copied code directly from the Teachable Machine website no ai used !-->
-    </div>
 </body>
 </html>

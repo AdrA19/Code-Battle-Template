@@ -3,7 +3,6 @@
 <head><title>Login</title></head>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <body>
-    <div class="body">
     <h1>{% if mode == 'signup' %}📝 Sign Up{% else %}🔐 Login{% endif %}</h1>
     {% if error %}<p style="color: red;">{{ error }}</p>{% endif %}
     
@@ -20,6 +19,5 @@
         <a href="{{ url_for('signup') }}"><button style="color: white; background-color: black;">Sign Up</button></a>
         {% endif %}
     </p>
-    </div>
 </body>
 </html>

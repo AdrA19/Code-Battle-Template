@@ -3,7 +3,6 @@
 <head><title>Admin Panel</title></head>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"<!-- cover, auto, contain -->
 <body>
-    <div class="body">
     <h1>🛡️ Admin Panel</h1>
     <p>Welcome, <strong>{{ user }}</strong>.</p>
 
@@ -21,9 +20,8 @@
 
     <br><br>
     <p>
-        <a style="color: white; background-color: black;" href="{{ url_for('welcome') }}">⬅️ Back to Welcome</a> |
-        <a style="color: white; background-color: black;" href="{{ url_for('logout') }}">🚪 Logout</a>
+        <a class="blanc" href="{{ url_for('welcome') }}">⬅️ Back to Welcome</a> |
+        <a class="blanc" href="{{ url_for('logout') }}">🚪 Logout</a>
     </p>
-    </div>
 </body>
 </html>
