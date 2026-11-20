@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><title>Admin Panel</title></head>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"<!-- cover, auto, contain -->
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"
 <body>
     <h1>🛡️ Admin Panel</h1>
     <p>Welcome, <strong>{{ user }}</strong>.</p>
@@ -16,7 +16,7 @@
 
     <h3>System Settings</h3>
     <p>Current Admin Username: <code>{{ admin_user }}</code></p>
-    <p><em>(To change the username or password, edit the top of <code>app.py</code>)</em></p>
+    <p>(To change the username or password, edit the top of <code>app.py</code>)</p>
 
     <br><br>
     <p>
